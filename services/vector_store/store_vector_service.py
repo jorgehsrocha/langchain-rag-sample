@@ -38,8 +38,6 @@ class StoreVectorService:
             if not doc.pages or len(doc.pages) == 0:
                 print(f"Document {doc.id} has no pages.")
                 continue
-            
-            # Check if document is already stored by checking for any page with this document_id
             try:
                 existing_docs = self.vector_store.similarity_search(
                     query="", 
@@ -50,13 +48,10 @@ class StoreVectorService:
                     print(f"Document {doc.id} is already stored. Skipping.")
                     continue
             except Exception:
-                # If filtering fails, proceed with storage
                 pass
 
-            # Create unique vector entries with guaranteed unique IDs
             vector_entries = []
             for page in doc.pages:
-                # Use UUID to ensure unique IDs even if same document is processed multiple times
                 unique_id = str(uuid.uuid4())
                 vector_entries.append(
                     Document(
@@ -70,10 +65,8 @@ class StoreVectorService:
                     )
                 )
             
-            # Store all pages for this document at once to maintain consistency
             if vector_entries:
                 try:
-                    # Generate unique IDs for each entry to prevent conflicts
                     ids = [str(uuid.uuid4()) for _ in vector_entries]
                     self.vector_store.add_documents(vector_entries, ids=ids)
                 except Exception as e:
